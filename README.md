@@ -33,4 +33,5 @@ The service has few configuration options. The configuration options should be l
 - `target_path` - from which subdirectory to load the keyword files. THe webhook really only responds to the files in this directory. This should point to `data/sdgs`. Note, no trailing slash!
 - `relax` - if set to `yes` or `YES` or `Yes`, the service will not import the 16 keyword lists on startup. This is useful when updating the webhook on a running system.
 - `ghscret` - this is the secret is used by github to connect to the webhook. The service will reject any other requests.
+- `port` - allows to configure the exposed port.
 

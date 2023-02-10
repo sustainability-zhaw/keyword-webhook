@@ -50,7 +50,7 @@ function setup() {
 
     app.use(router.routes());
 
-    return {run: () => app.listen(8090)};
+    return {run: () => app.listen(cfg.port)};
 }
 
 async function startRequest(ctx, next) {
