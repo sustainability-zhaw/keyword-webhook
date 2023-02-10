@@ -2,7 +2,7 @@ FROM node:19-slim
 
 WORKDIR /app
 
-COPY data /app/data
+# COPY data /app/data
 COPY tools /app
 
 RUN npm install
