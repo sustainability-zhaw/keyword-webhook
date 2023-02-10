@@ -1,13 +1,14 @@
 # keyword-webhook
+
 A GitHub Webhook Handler to update the keywords used by the indexer.
 
 This is a compagnion service for the [keywords-repo](https://github.com/sustainability-zhaw/keywords).
 
-The service is installed as a webhook next to the dashboard.
+The service is installed as a webhook next to the dashboard. The webhook api must not get secured by authomator, because the this endpoint will run without user interaction. 
 
-- The service currently needs a Github.com Token for accessing the repository data.
+- The service needs both a Github.com Token and a shared secret string for interacting with github.
 - The serivce will listen to a particular branch and subfolder to determine the correct EXCEL files. 
-- The service will import the 16 keyword lists on initial startup (or relaunch). **This will cause a temporary loss of index stats, whenever the webhook is restarted!** 
+- The service will import the 16 keyword lists on initial startup (or relaunch). **This will cause a temporary loss of index stats, whenever the webhook is restarted!** If you are relaxed and don't need the keywords to be injected immediately, use the `relax` option.
 
 The serivce responds to `Ping` and `Push` requests and ignores anything else. 
 
