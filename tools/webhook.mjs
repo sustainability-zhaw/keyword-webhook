@@ -39,13 +39,11 @@ function setup() {
         handlePayload,
         handleOther,
         cleanup
-        // renderOK
     ])); 
 
     router.get("/", KoaCompose([
         startRequest,
-        handleHelo,
-        // renderOK
+        handleHelo
     ])); 
 
     app.use(router.routes());
