@@ -1,3 +1,5 @@
+import {createHmac} from "node:crypto";
+
 import Koa from "koa";
 import Router from "@koa/router";
 import KoaCompose from "koa-compose";
@@ -12,8 +14,10 @@ GHFiles.init(cfg);
 
 const hook = setup();
 
-// inject any existing data
-GHFiles.handleAllFiles();
+if ( !("relax" in cfg && cfg.relax.toLowerCase() === "yes") ) {
+    // inject any existing data
+    GHFiles.handleAllFiles();
+}
 
 console.log("start webhook api");
 hook.run();
@@ -28,6 +32,7 @@ function setup() {
 
     router.post("/payload", koaBody.koaBody(), KoaCompose([
         startRequest,
+        verifyRequest,
         handlePing,
         checkPush,
         checkFiles,
@@ -53,8 +58,43 @@ async function startRequest(ctx, next) {
     await next();
 }
 
+async function verifyRequest(ctx, next) {
+    const secret = cfg.ghsecret;
+
+    if (secret && secret.length) {
+        const secSha = ctx.request.header["x-hub-signature-256"];
+        if (!(secSha && secSha.length)) {
+            console.log("no signature found");
+
+            ctx.status = 405;
+            ctx.body = JSON.stringify({message: "sorry"});
+        }
+        else {
+            // verify signature 
+            const sigHashAlg = 'sha256';
+
+            const verify = `${sigHashAlg}=${
+              createHmac(sigHashAlg, cfg.ghsecret)
+                .update(JSON.stringify(ctx.request.body))
+                .digest("hex")}`;
+
+            if (verify !== secSha) {
+                console.log("signature doesn't match");
+
+                ctx.status = 405;
+                ctx.body = JSON.stringify({message: "sorry"});
+            }
+            else {            
+                console.log("signature is ok");
+            }
+        }
+    }
+
+    await next();
+}
+
 async function handlePing(ctx, next) {
-    if ("zen" in ctx.request.body) {
+    if (!ctx.body && "zen" in ctx.request.body) {
         console.log("   GH ping");
         ctx.body = JSON.stringify({message: "Not being distracted at all."});
     }
