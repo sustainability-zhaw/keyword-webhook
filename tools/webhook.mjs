@@ -16,6 +16,7 @@ const hook = setup();
 
 if ( !("relax" in cfg && cfg.relax.toLowerCase() === "yes") ) {
     // inject any existing data
+    console.log("inject all sdg files");
     GHFiles.handleAllFiles();
 }
 

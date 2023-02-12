@@ -1,6 +1,6 @@
 import {Buffer} from "node:buffer";
 
-import { Octokit, App } from "octokit";
+// import { Octokit, App } from "octokit";
 
 import * as Target from "./GqlHandler.mjs";
 import * as Excel from "./Utilities.mjs";
@@ -10,9 +10,9 @@ let octokit;
 const setup = {};
 
 export function init(config) {
-    octokit = new Octokit({
-        auth: config.ghtoken
-    });
+    // octokit = new Octokit({
+    //     auth: config.ghtoken
+    // });
 
     setup.targetURL = config.apiurl;
     setup.target_path = config.target_path;
@@ -39,35 +39,22 @@ async function handleOneFile(filename) {
     let result; 
 
     try {
-        result = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-            owner: 'sustainability-zhaw',
-            repo: 'keywords',
-            path: filename,
-            ref: setup.branch
-        });
+        result = await fetch(`https://github.com/sustainability-zhaw/keywords/raw/${setup.branch}/${filename}`)
+                    .then((response) => response.arrayBuffer())
+                    .then((contentBuffer) => Excel.loadOneBuffer(sdgid, contentBuffer));
     }
     catch (err) {
         console.log(`ERROR for ${sdgid}: ${err.message}`);
         return;
     }
 
-    const fileobject = result.data;
-
-    const contentBuffer = Buffer.from(fileobject.content, "base64");
-
-    if (!(contentBuffer && contentBuffer.length)) {
-        console.log(`no content returned for ${sdgid}`);
-        return;
-    }
-
-    console.log(`process ${sdgid}`);
-
-    const matcher = await Excel.loadOneBuffer(sdgid, contentBuffer);
+    const matcher = result;
 
     if (matcher.length) {
         await Target.cleanup_selective(setup.targetURL, sdgid.toLowerCase());
         await Target.injectData(setup.targetURL, {matcher});
-        console.log(`data incjected for ${sdgid}`);
+
+        console.log(`incjected ${matcher.length} items for ${sdgid}`);
     }
 }
 
