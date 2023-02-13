@@ -8,13 +8,13 @@ import * as GHFiles from "./GHFiles.mjs";
 
 import * as Config from "./ConfigReader.mjs";
 
-const cfg = await Config.readConfig(["./config.json", "./tools/config.json", "/etc/app/config.json"]);
+const cfg = await Config.readConfig(["/etc/app/config.json", "./config.json", "./tools/config.json"]);
 
 GHFiles.init(cfg);
 
 const hook = setup();
 
-if ( !("relax" in cfg && cfg.relax.toLowerCase() === "yes") ) {
+if ( cfg.relax?.toLowerCase() !== "yes" ) {
     // inject any existing data
     console.log("inject all sdg files");
     GHFiles.handleAllFiles();
@@ -49,7 +49,9 @@ function setup() {
 
     app.use(router.routes());
 
-    return {run: () => app.listen(cfg.port)};
+    console.log(`use port ${cfg.port}`);
+
+    return {run: () => app.listen(cfg.port || 8090)};
 }
 
 async function startRequest(ctx, next) {

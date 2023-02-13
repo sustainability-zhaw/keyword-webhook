@@ -32,18 +32,16 @@ export async function cleanup_selective(target, regex) {
         msg
     }`).join("");
 
-    const clearSdg = `mutation {
-        updateInfoObject(input: {
-          filter: { has: sdgs },
-            remove: {
-            sdgs: [{ id: "sdg_${regex.replace("sdg", "")}" }]
-          }
-        } ) {
-          infoObject {
-            link
-          }
-        }
-      }`;
+    const clearSdg = `updateInfoObject(input: {
+      filter: { has: sdgs },
+        remove: {
+        sdgs: [{ id: "sdg_${regex.replace("sdg", "")}" }]
+      }
+    } ) {
+      infoObject {
+        link
+      }
+    }`;
 
     const query = `mutation { ${dropper} ${clearSdg} }`;
       
