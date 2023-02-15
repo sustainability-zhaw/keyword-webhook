@@ -88,6 +88,8 @@ function handleRows(ws, sdg) {
 
     const id = sdg.replace("SDG", "");
 
+    const now = new Date(Date.now()).toISOString();
+
     ws.eachRow((row,rid) => {
         if (rid === 1) {
             return;
@@ -110,7 +112,8 @@ function handleRows(ws, sdg) {
                     language: headings[cid].lang,
                     sdg: {
                         id: `sdg_${id}`
-                    }
+                    },
+                    dateUpdate: now
                 };
             }
 
