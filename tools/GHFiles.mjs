@@ -4,6 +4,7 @@ import {Buffer} from "node:buffer";
 
 import * as Target from "./GqlHandler.mjs";
 import * as Excel from "./Utilities.mjs";
+import * as MQ from "./MQUtilities.mjs";
 
 let octokit;
 
@@ -21,6 +22,7 @@ export function init(config) {
 
 export async function handleFiles(files, refid) {
     await Promise.all(files.map(handleOneFile));
+    MQ.signal(files);
 
     console.log(`${(new Date(Date.now())).toISOString()} -------- payload completed ${refid}`);
 }
