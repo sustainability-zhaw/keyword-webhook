@@ -2,18 +2,12 @@ import YAML from "yaml";
 import fs from "fs/promises";
 // const fs = require("node:fs/promises");
 
-const defaults = {
-    frontend: {
-        port: 8080
-    },
-    authenticator: {
-        port: 8081
-    },
-    backend: {}
-};
-
-export async function readConfig(locations) {
+export async function readConfig(locations, keys, defaults) {
     let result = {};
+
+    if (!(keys && Array.isArray(keys))) {
+        keys = [];
+    }
 
     if ( typeof locations === "string" ) {
         locations = [locations];
@@ -51,23 +45,13 @@ export async function readConfig(locations) {
         result = defaults;
     }
 
-    if (!result.frontend) {
-        result.frontend = defaults.frontend;
-    }
-    else if (!result.frontend.port) {
-        result.frontend.port = defaults.frontend.port;
-    }
-
-    if (!result.authenticator) {
-        result.authenticator = defaults.authenticator;
-    }
-    else if (!result.authenticator.port) {
-        result.authenticator.port = defaults.authenticator.port;
-    }
-
-    if (!result.backend) {
-        result.backend = defaults.backend;
-    }
+    result = keys.reduce((acc, k) => {
+        if (!(k in acc)) {
+            acc[k] = defaults[k];
+        }
+        
+        return acc; 
+    }, result)
 
     return result;
 }

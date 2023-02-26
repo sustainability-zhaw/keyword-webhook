@@ -8,7 +8,7 @@ export async function init(options) {
     const channel = await conn.createChannel();
 
     Connection.channel = channel;
-    Connection.sendkey = options.sendkey;
+    Connection.sendkey = options.mq_key;
     
     await channel.assertExchange(
         Connection.target, 

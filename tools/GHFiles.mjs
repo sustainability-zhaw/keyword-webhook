@@ -22,7 +22,6 @@ export function init(config) {
 
 export async function handleFiles(files, refid) {
     await Promise.all(files.map(handleOneFile));
-    MQ.signal(files);
 
     console.log(`${(new Date(Date.now())).toISOString()} -------- payload completed ${refid}`);
 }
@@ -38,10 +37,10 @@ async function handleOneFile(filename) {
 
     console.log(`handle ${filename} for ${sdgid}`);
 
-    let result; 
+    let matcher; 
 
     try {
-        result = await fetch(`https://github.com/sustainability-zhaw/keywords/raw/${setup.branch}/${filename}`)
+        matcher = await fetch(`https://github.com/sustainability-zhaw/keywords/raw/${setup.branch}/${filename}`)
                     .then((response) => response.arrayBuffer())
                     .then((contentBuffer) => Excel.loadOneBuffer(sdgid, contentBuffer));
     }
@@ -50,13 +49,15 @@ async function handleOneFile(filename) {
         return;
     }
 
-    const matcher = result;
-
     if (matcher.length) {
         await Target.cleanup_selective(setup.targetURL, sdgid.toLowerCase());
         await Target.injectData(setup.targetURL, {matcher});
 
         console.log(`incjected ${matcher.length} items for ${sdgid}`);
+
+        const sdg = `${sdgid.toLowerCase().replace(/\d+/, "")}_${sdgid.toLowerCase().replace("sdg", "")}`;
+
+        MQ.signal([{sdg}]);
     }
 }
 

@@ -9,7 +9,7 @@ import * as MQ from "./MQUtilities.mjs";
 
 import * as Config from "./ConfigReader.mjs";
 
-const cfg = await Config.readConfig(["/etc/app/config.json", "./config.json", "./tools/config.json"]);
+const cfg = await Config.readConfig(["/etc/app/config.json", "./config.json", "./tools/config.json"], [], {});
 
 GHFiles.init(cfg);
 await MQ.init(cfg);
