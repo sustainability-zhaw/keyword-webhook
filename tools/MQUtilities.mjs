@@ -18,7 +18,7 @@ export async function init(options) {
 }
 
 export function signal(updates) {
-    if (!(updates && updates.length)) {
+    if (!(updates && (updates.length || Object.keys(updates).length))) {
         console.log("skip signal");
     }
 
