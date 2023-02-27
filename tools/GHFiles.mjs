@@ -57,7 +57,7 @@ async function handleOneFile(filename) {
 
         const sdg = `${sdgid.toLowerCase().replace(/\d+/, "")}_${sdgid.toLowerCase().replace("sdg", "")}`;
 
-        MQ.signal([{sdg}]);
+        MQ.signal({sdg});
     }
 }
 
