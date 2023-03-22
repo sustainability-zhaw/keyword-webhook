@@ -14,7 +14,7 @@ const forceClean = process.env.CLEANUP || 1;
 
 const parentdir = "data/sdgs";
 
-const files = Array(16).fill().map((_,i) => i + 1);
+const files = Array.from(Array(16), (_,i) => i + 1);
 
 console.log("drop stale data");
 

@@ -65,5 +65,5 @@ function sequence(len, start) {
     if (!start) {
         start = 1;
     }
-    return Array(len).fill().map((_, i) => i + start);
+    return Array.from(Array(len), (_, i) => i + start);
 }
