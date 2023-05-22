@@ -35,8 +35,9 @@ function expandConstruct(obj, type) {
     const result = [];
     
     obj[type]
-        .split(",")
-        .map(t => t.trim())
+        .split(",") // problem when commas appear in quotes
+        .map(t => t.trim().replace(/["']$/, "")).replace(/^["']$/, "")
+        .filter(t => t.length)
         .reduce((res, t, i) => {
             const tmpObj = Object.assign({}, obj);
             
