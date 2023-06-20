@@ -12,7 +12,9 @@ import * as Config from "./ConfigReader.mjs";
 const cfg = await Config.readConfig(["/etc/app/config.json", "./config.json", "./tools/config.json"], [], {});
 
 GHFiles.init(cfg);
-await MQ.init(cfg);
+MQ.init(cfg);
+
+await MQ.connect();
 
 const hook = setup();
 

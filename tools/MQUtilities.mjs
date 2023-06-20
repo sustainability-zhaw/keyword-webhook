@@ -2,13 +2,17 @@ import amqp from "amqplib";
 
 const Connection = {};
 
-export async function init(options) {
+export function init(options) {
     Connection.target = options.mq_exchange;
-    const conn = await amqp.connect(`amqp://${options.mq_host}`);
+    Connection.sendkey = options.mq_key;
+    Connection.host = `amqp://${options.mq_host}`;
+ }
+
+export async function connect() {
+    const conn = await amqp.connect(Connection.host);
     const channel = await conn.createChannel();
 
     Connection.channel = channel;
-    Connection.sendkey = options.mq_key;
     
     await channel.assertExchange(
         Connection.target, 

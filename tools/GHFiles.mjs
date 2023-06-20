@@ -1,4 +1,5 @@
-import {Buffer} from "node:buffer";
+// import {Buffer} from "node:buffer";
+import { setTimeout } from "node:timers/promises";
 
 // import { Octokit, App } from "octokit";
 
@@ -21,7 +22,31 @@ export function init(config) {
 }
 
 export async function handleFiles(files, refid) {
-    await Promise.all(files.map(handleOneFile));
+    try {
+        await Promise.all(files.map(handleOneFile));
+    }
+    catch (err) {
+        console.log(`ERROR for ${refid}: ${err.message}`);
+
+        // there are 2 reasons for an error:
+        // 1. the file is invalid
+        // 2. the MQ connection is broken
+        console.log(`retry in 15 seconds`);
+        await setTimeout(15000);
+        
+        console.log(`try to recover from Error for ${refid}: ${err.message}`);
+        
+        try {
+            await MQ.connect();
+
+            // retry to handle the files
+            await Promise.all(files.map(handleOneFile));
+        }
+        catch (err) {
+            console.log(`UNRECOVERABLE ERROR for ${refid}: ${err.message}`);
+        }
+    }
+
 
     console.log(`${(new Date(Date.now())).toISOString()} -------- payload completed ${refid}`);
 }
