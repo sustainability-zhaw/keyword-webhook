@@ -11,15 +11,19 @@ export function init(options) {
  }
 
 export async function connect() {
-    const conn = await amqp.connect(Connection.host);
-    const channel = await conn.createChannel();
+    if (Connection.conn) {
+        await Connection.conn.close();
+    }
+
+    Connection.conn = await amqp.connect(Connection.host);
+    const channel = await Connection.conn.createChannel();
 
     Connection.channel = channel;
     
     await channel.assertExchange(
         Connection.target, 
         'topic', 
-        {durable: true}
+        {durable: false} // this option is set once per server, might be configured at the server 
     );
 }
 
