@@ -6,6 +6,8 @@ export function init(options) {
     Connection.target = options.mq_exchange;
     Connection.sendkey = options.mq_key;
     Connection.host = `amqp://${options.mq_host}`;
+
+    console.log(`MQ target: ${JSON.stringify(Connection)}`);
  }
 
 export async function connect() {
@@ -17,7 +19,7 @@ export async function connect() {
     await channel.assertExchange(
         Connection.target, 
         'topic', 
-        {durable: false}
+        {durable: true}
     );
 }
 
@@ -26,7 +28,7 @@ export async function signal(updates) {
         console.log("skip signal");
     }
 
-    console.log(`signal ${JSON.stringify(updates)}`);
+    console.log(`signal ${Connection.sendkey} with ${JSON.stringify(updates)}`);
     try {
         Connection.channel.publish(
             Connection.target,
