@@ -1,3 +1,6 @@
+import {
+    setTimeout,
+} from "timers/promises";
 
 export async function injectData(target, variables) {
     const query = `
@@ -79,7 +82,7 @@ async function runRequest(targetHost, bodyObject) {
             
         result = await response.json();
 
-        await new Promise((resolve) => setTimeout(() => resolve(), Math.floor(Math.random() * 10000)));
+        await setTimeout(Math.floor(Math.random() * 10000));
     }
 
     if (n === 10) {

@@ -1,5 +1,9 @@
 import amqp from "amqplib";
 
+import {
+    setTimeout,
+} from "timers/promises";
+
 const Connection = {};
 
 export function init(options) {
@@ -45,7 +49,9 @@ export async function signal(updates) {
         // there are 2 reasons for an error:
         // 1. the file is invalid
         // 2. the MQ connection is broken
+
         console.log(`retry in 15 seconds`);
+
         await setTimeout(15000);
         console.log(`retry now`);
         await MQ.connect();
