@@ -52,7 +52,7 @@ export async function signal(updates) {
 
         await setTimeout(15000, "retry");
         console.log(`retry now`);
-        await MQ.connect();
+        await connect();
 
         try {
             Connection.channel.publish(
