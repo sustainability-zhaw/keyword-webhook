@@ -24,8 +24,8 @@ export async function connect() {
     
     await channel.assertExchange(
         Connection.target, 
-        'topic' //, 
-        // {durable: false} // this option is set once per server, might be configured at the server 
+        'topic', 
+        {durable: false} // this option is set once per server, might be configured at the server 
     );
 }
 
