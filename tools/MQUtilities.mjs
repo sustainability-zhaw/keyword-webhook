@@ -50,7 +50,7 @@ export async function signal(updates) {
 
         console.log(`retry in 15 seconds`);
 
-        await setTimeout(15000);
+        await setTimeout(15000, "retry");
         console.log(`retry now`);
         await MQ.connect();
 
