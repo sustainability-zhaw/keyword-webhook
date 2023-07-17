@@ -1,8 +1,6 @@
 import amqp from "amqplib";
 
-import {
-    setTimeout,
-} from "timers/promises";
+import { setTimeout } from "node:timers/promises";
 
 const Connection = {};
 
