@@ -7,7 +7,17 @@ const Connection = {};
 export function init(options) {
     Connection.target = options.mq_exchange;
     Connection.sendkey = options.mq_key;
-    Connection.host = `amqp://${options.mq_host}`;
+    Connection.host = {
+        protocol: 'amqp',
+        hostname: options.mq_host,
+        // port: 5672,
+        // username: 'guest',
+        // password: 'guest',
+        // locale: 'en_US',
+        // frameMax: 0,
+        heartbeat: 3600,
+        // vhost: '/',
+      };
 
     console.log(`MQ target: ${JSON.stringify(Connection)}`);
  }
@@ -25,7 +35,7 @@ export async function connect() {
     await channel.assertExchange(
         Connection.target, 
         'topic', 
-        {durable: false} // this option is set once per server, might be configured at the server 
+        // {durable: false} // this option is set once per server, might be configured at the server 
     );
 }
 
