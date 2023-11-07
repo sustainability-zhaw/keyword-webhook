@@ -11,8 +11,8 @@ export function init(options) {
         protocol: 'amqp',
         hostname: options.mq_host,
         // port: 5672,
-        // username: 'guest',
-        // password: 'guest',
+        username: 'keyword-webhook',
+        password: 'guest',
         // locale: 'en_US',
         // frameMax: 0,
         heartbeat: 3600,
@@ -28,15 +28,7 @@ export async function connect() {
     }
 
     Connection.conn = await amqp.connect(Connection.host);
-    const channel = await Connection.conn.createChannel();
-
-    Connection.channel = channel;
-    
-    await channel.assertExchange(
-        Connection.target, 
-        'topic', 
-        { durable: false } // this option is set once per server, might be configured at the server 
-    );
+    Connection.channel = await Connection.conn.createChannel();
 }
 
 export async function signal(updates) {
