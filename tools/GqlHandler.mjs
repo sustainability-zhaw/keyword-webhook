@@ -55,6 +55,26 @@ export async function cleanup_selective(target, regex) {
     }
 }
 
+export async function check_sdg_terms(target) {
+    const query = `query {
+    sdg: querySdg
+    {
+        id
+        matches: matchesAggregate {
+            count
+        }
+    }
+}`;
+
+    const result = await runRequest(target, { query });
+
+    if ("errors" in result) {
+        console.log(`sdg match counting failed: ${JSON.stringify(result.errors, null, "  ")}`);
+    }
+
+    return result;
+}
+
 async function runRequest(targetHost, bodyObject) {
     const method = "POST"; // all requests are POST requests
     const cache = "no-store";

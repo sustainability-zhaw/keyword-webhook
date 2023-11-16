@@ -7,6 +7,8 @@ import koaBody from "koa-body";
 import * as GHFiles from "./GHFiles.mjs";
 import * as MQ from "./MQUtilities.mjs";
 
+import { check_sdg_terms } from "./GqlHandler.mjs";
+
 import * as Config from "./ConfigReader.mjs";
 
 const cfg = await Config.readConfig(["/etc/app/config.json", "./config.json", "./tools/config.json"], [], {});
@@ -18,8 +20,13 @@ await MQ.connect();
 
 const hook = setup();
 
-if ( cfg.relax?.toLowerCase() !== "yes" ) {
-    // inject any existing data
+
+// verify that the system is not in an uninitialized state.
+const sdgcnts = await check_sdg_terms(cfg.apiurl);
+const sdgcount = sdgcnts.data?.sdg?.map(x => x.matches.count).reduce((a, x) => a + x, 0);
+
+if ( sdgcount === 0 || cfg.relax?.toLowerCase() !== "yes" ) {
+    // force the system to initialize
     console.log("inject all sdg files");
     GHFiles.handleAllFiles();
 }
