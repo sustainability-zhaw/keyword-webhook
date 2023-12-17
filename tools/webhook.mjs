@@ -20,7 +20,6 @@ await MQ.connect();
 
 const hook = setup();
 
-
 // verify that the system is not in an uninitialized state.
 const sdgcnts = await check_sdg_terms(cfg.apiurl);
 const sdgcount = sdgcnts.data?.sdg?.map(x => x.matches.count).reduce((a, x) => a + x, 0);
