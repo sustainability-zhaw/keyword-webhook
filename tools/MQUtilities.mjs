@@ -7,12 +7,13 @@ const Connection = {};
 export function init(options) {
     Connection.target = options.mq_exchange;
     Connection.sendkey = options.mq_key;
+
     Connection.host = {
         protocol: 'amqp',
         hostname: options.mq_host,
         // port: 5672,
-        username: 'keyword-webhook',
-        password: 'guest',
+        username: options.mq_user || 'keyword-webhook',
+        password: options.mq_pass || 'guest',
         // locale: 'en_US',
         // frameMax: 0,
         heartbeat: 3600,
