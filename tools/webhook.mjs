@@ -61,7 +61,7 @@ function setup() {
 
     console.log(`use port ${cfg.port}`);
 
-    return {run: () => app.listen(cfg.port || 8090)};
+    return {run: () => )app.listen(cfg.port || 8090};
 }
 
 async function startRequest(ctx, next) {
