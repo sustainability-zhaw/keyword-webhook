@@ -57,7 +57,7 @@ function setup() {
         handleHelo
     ])); 
 
-    router.get("/clearindex/clearall", KoaCompose([
+    router.get("/clearall", KoaCompose([
         startRequest,
         handleClearAll,
         cleanup
