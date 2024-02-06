@@ -7,7 +7,7 @@ import koaBody from "koa-body";
 import * as GHFiles from "./GHFiles.mjs";
 import * as MQ from "./MQUtilities.mjs";
 
-import { check_sdg_terms } from "./GqlHandler.mjs";
+import { check_sdg_terms, cleanup_all } from "./GqlHandler.mjs";
 
 import * as Config from "./ConfigReader.mjs";
 
@@ -55,6 +55,12 @@ function setup() {
     router.get("/", KoaCompose([
         startRequest,
         handleHelo
+    ])); 
+
+    router.get("/clearindex/clearall", KoaCompose([
+        startRequest,
+        handleClearAll,
+        cleanup
     ])); 
 
     app.use(router.routes());
@@ -171,6 +177,19 @@ async function handlePayload(ctx, next) {
         GHFiles.handleFiles(ctx.gh_files, ctx.request.body.head_commit.id);
     }
     
+    await next();
+}
+
+async function handleClearAll(ctx, next) {
+    if (!ctx.body) {
+        console.log("clear all");
+        
+        await cleanup_all(cfg.apiurl, true);
+        await GHFiles.handleAllFiles();
+
+        ctx.body = JSON.stringify({message: "OK"});
+    }
+
     await next();
 }
 
