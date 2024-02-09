@@ -1,0 +1,28 @@
+{
+    "git": {
+        "branch": "main",
+        "target_path": "data/sdgs"
+    },
+    "entrypoints": [
+        {
+            "route": "/",
+            "handler": "handle_default"
+        },
+        {
+            "route": "/clearall",
+            "handler": "clear_all"
+        },
+        {
+            "route": "/payload",
+            "method": "post",
+            "handler": [
+                "verify_signature",
+                "handle_ping",
+                "check_push",
+                "check_files",
+                "handle_payload",
+                "handle_default"
+            ]
+        }
+    ]
+}
