@@ -6,7 +6,7 @@ import * as Target from "./DataStore.mjs";
 import * as Excel from "./Utilities.mjs";
 import * as MQ from "./MQUtilities.mjs";
 
-let octokit;
+// let octokit;
 
 const setup = {};
 
@@ -28,7 +28,7 @@ export async function handleFiles(files, refid) {
         console.log(`ERROR for ${refid}: ${err.message}`);
     }
 
-    console.log(`${(new Date(Date.now())).toISOString()} -------- payload completed ${refid}`);
+    console.log(`${new Date(Date.now()).toISOString()} -------- payload completed ${refid}`);
 }
 
 export async function handleAllFiles() {
@@ -42,12 +42,12 @@ async function handleOneFile(filename) {
 
     console.log(`handle ${filename} for ${sdgid}`);
 
-    let matcher; 
+    let matcher;
 
     try {
         matcher = await fetch(`https://github.com/sustainability-zhaw/keywords/raw/${setup.branch}/${filename}`)
-                    .then((response) => response.arrayBuffer())
-                    .then((contentBuffer) => Excel.loadOneBuffer(sdgid, contentBuffer));
+            .then((response) => response.arrayBuffer())
+            .then((contentBuffer) => Excel.loadOneBuffer(sdgid, contentBuffer));
     }
     catch (err) {
         console.log(`ERROR for ${sdgid}: ${err.message}`);

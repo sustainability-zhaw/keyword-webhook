@@ -3,6 +3,7 @@ import {createHmac} from "node:crypto";
 export async function verify_signature(ctx, next) {
     const log = ctx.state.logger.get("verify_signature");
     const secret = ctx.state?.config?.ghsecret;
+    const cfg = ctx.state.config;
 
     if (!(secret && secret.length)) {
         log.warn("no secret found");
@@ -15,21 +16,21 @@ export async function verify_signature(ctx, next) {
         log.warn("no signature found");
         ctx.throw(405, "sorry");
     }
-    
-    // verify signature 
-    const sigHashAlg = 'sha256';
+
+    // verify signature
+    const sigHashAlg = "sha256";
 
     const verify = `${sigHashAlg}=${
-      createHmac(sigHashAlg, cfg.ghsecret)
-        .update(JSON.stringify(ctx.request.body))
-        .digest("hex")
+        createHmac(sigHashAlg, cfg.ghsecret)
+            .update(JSON.stringify(ctx.request.body))
+            .digest("hex")
     }`;
 
     if (verify !== secSha) {
         log.warn("signature doesn't match");
         ctx.throw(405, "sorry");
     }
-    
+
     log.info("signature is ok");
 
     await next();

@@ -6,7 +6,7 @@ export async function check_push(ctx, next) {
     }
 
     log.info(`${ctx.request.body.head_commit.id}`);
-    
+
     const branch = ctx.request.body.ref.replace("refs/heads/", "");
 
     if (branch !== ctx.state.config?.git?.branch) {

@@ -6,8 +6,8 @@ export async function handlePayload(ctx, next) {
     log.info(`some files have changed: ${ctx.gh_files.join("; ")}`);
 
     GHFiles.handleFiles(ctx.gh_files, ctx.request.body.head_commit.id);
-    
-    ctx.body = {message: "accepted"}; 
-    
+
+    ctx.body = {message: "accepted"};
+
     await next();
 }
