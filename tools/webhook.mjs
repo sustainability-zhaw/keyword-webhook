@@ -50,18 +50,18 @@ function setup() {
         handlePayload,
         handleOther,
         cleanup
-    ])); 
+    ]));
 
     router.get("/", KoaCompose([
         startRequest,
         handleHelo
-    ])); 
+    ]));
 
     router.get("/clearall", KoaCompose([
         startRequest,
         handleClearAll,
         cleanup
-    ])); 
+    ]));
 
     app.use(router.routes());
 
@@ -71,7 +71,7 @@ function setup() {
 }
 
 async function startRequest(ctx, next) {
-    console.log(`${(new Date(Date.now())).toISOString()} -------- new request ${ctx.request.body ? "with payload": ""}`);
+    console.log(`${new Date(Date.now()).toISOString()} -------- new request ${ctx.request.body ? "with payload" : ""}`);
     await next();
 }
 
@@ -80,6 +80,7 @@ async function verifyRequest(ctx, next) {
 
     if (secret && secret.length) {
         const secSha = ctx.request.header["x-hub-signature-256"];
+
         if (!(secSha && secSha.length)) {
             console.log("no signature found");
 
@@ -87,13 +88,13 @@ async function verifyRequest(ctx, next) {
             ctx.body = JSON.stringify({message: "sorry"});
         }
         else {
-            // verify signature 
-            const sigHashAlg = 'sha256';
+            // verify signature
+            const sigHashAlg = "sha256";
 
             const verify = `${sigHashAlg}=${
-              createHmac(sigHashAlg, cfg.ghsecret)
-                .update(JSON.stringify(ctx.request.body))
-                .digest("hex")}`;
+                createHmac(sigHashAlg, cfg.ghsecret)
+                    .update(JSON.stringify(ctx.request.body))
+                    .digest("hex")}`;
 
             if (verify !== secSha) {
                 console.log("signature doesn't match");
@@ -101,7 +102,7 @@ async function verifyRequest(ctx, next) {
                 ctx.status = 405;
                 ctx.body = JSON.stringify({message: "sorry"});
             }
-            else {            
+            else {
                 console.log("signature is ok");
             }
         }
@@ -128,8 +129,8 @@ async function handleOther(ctx, next) {
 
 async function checkPush(ctx, next) {
     if (!ctx.body && "ref" in ctx.request.body) {
-        console.log(`${(new Date(Date.now())).toISOString()} -- ${ctx.request.body.head_commit.id}`);
-        
+        console.log(`${new Date(Date.now()).toISOString()} -- ${ctx.request.body.head_commit.id}`);
+
         const branch = ctx.request.body.ref.replace("refs/heads/", "");
 
         if (branch !== cfg.branch) {
@@ -143,27 +144,27 @@ async function checkPush(ctx, next) {
 async function checkFiles(ctx, next) {
     if (!ctx.body && "ref" in ctx.request.body) {
         const files = ctx.request.body.commits
-                    // merge all available files that have changed.
-                    .map((c) => c.modified.concat(c.added)).flat()
-                    // focus on target path
-                    .filter(fn => fn.startsWith(cfg.target_path))
-                    // filter target files
-                    .filter((fn) => fn.slice(-5) === ".xlsx")
-                    // remove duplicates
-                    .reduce((agg, fn) => {
-                        if (!agg.includes(fn)) {
-                            agg.push(fn);
-                        }
-                        return agg;
-                    }, []);
-  
+        // merge all available files that have changed.
+            .map((c) => c.modified.concat(c.added)).flat()
+        // focus on target path
+            .filter(fn => fn.startsWith(cfg.target_path))
+        // filter target files
+            .filter((fn) => fn.slice(-5) === ".xlsx")
+        // remove duplicates
+            .reduce((agg, fn) => {
+                if (!agg.includes(fn)) {
+                    agg.push(fn);
+                }
+                return agg;
+            }, []);
+
         if (!files.length) {
             console.log("no relevant files have changed");
             ctx.body = JSON.stringify({message: "done"});
         }
 
         ctx.gh_files = files;
-    } 
+    }
 
     await next();
 }
@@ -176,14 +177,14 @@ async function handlePayload(ctx, next) {
 
         GHFiles.handleFiles(ctx.gh_files, ctx.request.body.head_commit.id);
     }
-    
+
     await next();
 }
 
 async function handleClearAll(ctx, next) {
     if (!ctx.body) {
         console.log("clear all");
-        
+
         await cleanup_all(cfg.apiurl, true);
         await GHFiles.handleAllFiles();
 
@@ -198,7 +199,7 @@ async function cleanup(ctx, next) {
         ctx.body = JSON.stringify({message: "nothing to do"});
     }
 
-    console.log(`${(new Date(Date.now())).toISOString()} -------- request done`);
+    console.log(`${new Date(Date.now()).toISOString()} -------- request done`);
 
     await next();
 }
