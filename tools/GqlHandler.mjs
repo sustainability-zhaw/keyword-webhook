@@ -30,29 +30,76 @@ export async function cleanup_all(target, force) {
 }
 
 export async function cleanup_selective(target, regex) {
-    const dropper = ["de", "en", "fr", "it"].map(lang => `
-    deleteSdgMatch(filter: {construct: {regexp: "/^${regex}_${lang}/i"}}) {
-        msg
-    }`).join("");
+    // WORKAROUND due to dgraph NQUAD limitation
+    // Fetch all matching objects for all matching terms
+    // create batches of matching objects
+    // clean up all matching objects one by one
+    // clean all objects from
 
-    const clearSdg = `updateInfoObject(input: {
-      filter: { has: sdgs },
-        remove: {
-        sdgs: [{ id: "sdg_${regex.replace("sdg", "")}" }]
-      }
-    } ) {
-      infoObject {
-        link
-      }
+
+    const sdgNbr = regex.replace("sdg", "");
+
+    const batchQuery = `query {
+        query SDG_Matching_terms {
+        matches: querySdg(filter: {and: [{has: objects}, {id: {eq: "sdg_${sdgNbr}}}]}) @cascade
+        {
+            objects {
+                link
+                sdg_matches(filter: {construct: {regexp: "/^sdg${sdgNbr}/i"}}) {
+                    construct
+                }
+            }
+        }
+    }
     }`;
 
-    const query = `mutation { ${dropper} ${clearSdg} }`;
-      
-    const result = await runRequest(target, { query });
-    
-    if ("errors" in result) {
-        console.log(`cleanup of ${regex} failed: ${JSON.stringify(result.errors, null, "  ")}`);
+    const objects = await runRequest(target, { batchQuery });
+
+    if ("errors" in objects) {
+        console.log(`cleanup of ${regex} failed: ${JSON.stringify(objects.errors, null, "  ")}`);
     }
+
+    let batch = objects.data.matches.objects;
+    // for every maxBatchSize object, we drop the SDG AND the assigned index terms
+
+    while (batch.length) {
+        batch = await dropBatch(target, batch, sdgNbr);
+    }
+
+}
+
+async function dropBatch(target, objects, sdg) {
+    const maxBatchSize = 10;
+    const retval = objects.slice(maxBatchSize);
+
+    const batch = objects.slice(0, maxBatchSize);
+
+    const links = batch.map((b) => b.link);
+    const matches = batch.map((b) => b.sdg_matches.map((m) => m.construct)).flat();
+
+    const patch = {
+        "filter": {
+            "link": {"in": links}
+        },
+        "remove": {
+            "sdgs": [
+                {"id": `sdg_${sdg}`}
+            ],
+            "sdg_matches": [
+                { "construct": matches }
+            ]
+        }
+    };
+
+    const query = "mutation deleteMatches($patch: UpdateInfoObjectInput!) { updateInfoObject(input:$patch) { numUids } }";
+
+    const result =  await runRequest(target, {query, variables: {patch}});
+
+    if ("errors" in result) {
+        console.log(`cleanup of ${sdg} failed: ${JSON.stringify(result.errors, null, "  ")}`);
+    }
+
+    return retval;
 }
 
 export async function check_sdg_terms(target) {
@@ -80,7 +127,7 @@ async function runRequest(targetHost, bodyObject) {
     const cache = "no-store";
 
     const headers = {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
     };
 
     const body = JSON.stringify(bodyObject, null, "  ");
@@ -88,7 +135,9 @@ async function runRequest(targetHost, bodyObject) {
     let result;
     let n = 0;
 
-    while (n++ < 10 && (!result || ("errors" in  result && result.errors[0].message.endsWith("Please retry")))) {
+    while (n < 10 && (!result || "errors" in  result && result.errors[0].message.endsWith("Please retry"))) {
+        n += 1;
+
         const RequestController = new AbortController();
         const {signal} = RequestController;
 
@@ -99,7 +148,7 @@ async function runRequest(targetHost, bodyObject) {
             cache,
             body
         });
-            
+
         result = await response.json();
 
         await setTimeout(Math.floor(Math.random() * 10000));
