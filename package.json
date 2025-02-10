@@ -23,7 +23,7 @@
   "dependencies": {
     "@phish108/web-service-core": "1.0.2",
     "exceljs": "4.4.0",
-    "octokit": "4.1.0"
+    "octokit": "4.1.1"
   },
   "devDependencies": {
     "@eslint/js": "9.17.0",
